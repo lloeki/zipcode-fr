@@ -61,9 +61,7 @@ module ZipCode
       key ||= name
       index = Hash.new { |h, k| h[k] = [] unless h.frozen? }
 
-      data.each do |pos, record|
-        append(index, pos, record[key], mode: mode)
-      end
+      data.each(&appender(index, key, mode))
 
       index.each { |_, v| v.uniq! }
       index.freeze
@@ -71,11 +69,14 @@ module ZipCode
       @indexes[name] = index
     end
 
-    private def append(idx, pos, val, mode: nil)
+    private def appender(idx, key, mode)
       case mode
-      when :prefix then append_prefixes(idx, pos, val)
-      when :infix then append_infixes(idx, pos, val)
-      else append_match(idx, pos, val)
+      when :prefix
+        -> (pos, record) { append_prefixes(idx, pos, record[key]) }
+      when :infix
+        -> (pos, record) { append_infixes(idx, pos, record[key]) }
+      else
+        -> (pos, record) { append_match(idx, pos, record[key]) }
       end
     end
 
