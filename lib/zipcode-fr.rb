@@ -8,7 +8,7 @@ module ZipCode
 
     def load
       # TODO: non-optimal, but not overly long either
-      index!(:name, reader, mode: :infix)
+      index!(:name, reader, mode: :word_prefix)
       index!(:zip, reader, mode: :prefix)
       @loaded = true
     end
@@ -75,6 +75,10 @@ module ZipCode
         -> (pos, record) { append_prefixes(idx, pos, record[key]) }
       when :infix
         -> (pos, record) { append_infixes(idx, pos, record[key]) }
+      when :word
+        -> (pos, record) { append_words(idx, pos, record[key]) }
+      when :word_prefix
+        -> (pos, record) { append_word_prefixes(idx, pos, record[key]) }
       else
         -> (pos, record) { append_match(idx, pos, record[key]) }
       end
@@ -84,8 +88,22 @@ module ZipCode
       idx[val.hash] << pos
     end
 
+    private def append_words(idx, pos, val)
+      each_word(val) { |w| idx[w.hash] << pos }
+    end
+
+    private def append_word_prefixes(idx, pos, val)
+      each_word(val) do |word|
+        each_prefix(word) { |prefix| idx[prefix.hash] << pos }
+      end
+    end
+
     private def append_prefixes(idx, pos, val, min_size: 1)
       each_prefix(val, min_size: min_size) { |prefix| idx[prefix.hash] << pos }
+    end
+
+    private def each_word(val, &block)
+      val.split.each(&block)
     end
 
     private def each_prefix(val, min_size: 1)
