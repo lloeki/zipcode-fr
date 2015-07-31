@@ -8,8 +8,8 @@ module ZipCode
 
     def load
       # TODO: non-optimal, but not overly long either
-      index!(:name, reader)
-      index!(:zip, reader)
+      index!(:name, reader, mode: :infix)
+      index!(:zip, reader, mode: :prefix)
       @loaded = true
     end
 
@@ -57,18 +57,49 @@ module ZipCode
       [:insee, :name, :zip, :alt_name].zip(row).to_h
     end
 
-    def index!(name, data, key = nil)
+    def index!(name, data, key = nil, mode: nil)
       key ||= name
       index = Hash.new { |h, k| h[k] = [] unless h.frozen? }
 
       data.each do |pos, record|
-        val = record[key]
-        val.length.times { |i| index[val[0..i].hash] << pos }
+        append(index, pos, record[key], mode: mode)
       end
 
       index.freeze
 
       @indexes[name] = index
+    end
+
+    private def append(idx, pos, val, mode: nil)
+      case mode
+      when :prefix then append_prefixes(idx, pos, val)
+      when :infix then append_infixes(idx, pos, val)
+      else append_match(idx, pos, val)
+      end
+    end
+
+    private def append_match(idx, pos, val)
+      idx[val.hash] << pos
+    end
+
+    private def append_prefixes(idx, pos, val, min_size: 3)
+      each_prefix(val, min_size: min_size) { |prefix| idx[prefix.hash] << pos }
+    end
+
+    private def each_prefix(val, min_size: 1)
+      min_size.upto(val.length) { |i| yield val[0...i] }
+    end
+
+    private def each_suffix(val, min_size: 1)
+      min_size.upto(val.length) { |i| yield val[-i..-1] }
+    end
+
+    private def append_infixes(idx, pos, val, min_size: 3)
+      each_prefix(val, min_size: min_size) do |prefix|
+        each_suffix(prefix, min_size: min_size) do |infix|
+          idx[infix.hash] << pos
+        end
+      end
     end
 
     private def index(name)
