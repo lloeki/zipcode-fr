@@ -84,7 +84,7 @@ module ZipCode
       idx[val.hash] << pos
     end
 
-    private def append_prefixes(idx, pos, val, min_size: 3)
+    private def append_prefixes(idx, pos, val, min_size: 1)
       each_prefix(val, min_size: min_size) { |prefix| idx[prefix.hash] << pos }
     end
 
@@ -96,7 +96,7 @@ module ZipCode
       min_size.upto(val.length) { |i| yield val[-i..-1] }
     end
 
-    private def append_infixes(idx, pos, val, min_size: 3)
+    private def append_infixes(idx, pos, val, min_size: 1)
       each_prefix(val, min_size: min_size) do |prefix|
         each_suffix(prefix, min_size: min_size) do |infix|
           idx[infix.hash] << pos
