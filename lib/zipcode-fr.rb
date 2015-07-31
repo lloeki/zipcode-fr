@@ -65,6 +65,7 @@ module ZipCode
         append(index, pos, record[key], mode: mode)
       end
 
+      index.each { |_, v| v.uniq! }
       index.freeze
 
       @indexes[name] = index
