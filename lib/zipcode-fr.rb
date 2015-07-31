@@ -111,6 +111,12 @@ module ZipCode
       end
     end
 
+    def memsize_of_index(name)
+      require 'objspace'
+      ObjectSpace.memsize_of(@indexes[name]) +
+        @indexes[name].reduce(0) { |a, (_, v)| a + ObjectSpace.memsize_of(v) }
+    end
+
     private def read_at(*positions, count: 1)
       Enumerator.new do |y|
         open do |io|
