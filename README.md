@@ -1,4 +1,4 @@
-# zipcode\_fr
+# zipcode-fr
 
 Find french city data by zip code and name.
 
