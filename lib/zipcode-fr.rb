@@ -42,12 +42,12 @@ module ZipCode
     end
     private :open
 
-      Enumerator.new do |y|
-        open do |io|
-          pos = io.tell
-          io.each { |row| y << [pos, clean(row)]; pos = io.tell }
-        end
     def reader
+      return enum_for(:reader) unless block_given?
+
+      open do |io|
+        pos = io.tell
+        io.each { |row| yield(pos, clean(row)); pos = io.tell }
       end
     end
     private :reader
@@ -163,12 +163,12 @@ module ZipCode
     end
 
     def read_at(*positions, count: 1)
-      Enumerator.new do |y|
-        open do |io|
-          positions.each do |pos|
-            io.seek(pos)
-            io.take(count).each { |row| y << clean(row) }
-          end
+      return enum_for(:read_at, *positions, count: count) unless block_given?
+
+      open do |io|
+        positions.each do |pos|
+          io.seek(pos)
+          io.take(count).each { |row| yield clean(row) }
         end
       end
     end
