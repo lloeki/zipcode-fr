@@ -20,45 +20,52 @@ module ZipCode
       @loaded
     end
 
-    private def data_source
+    def data_source
       path = 'vendor/data/code_postaux_v201410.csv'
       File.expand_path(File.join(File.dirname(__FILE__), '..', path))
     end
+    private :data_source
 
-    private def reader_options
+    def reader_options
       {
         col_sep: ';',
         encoding: 'ISO-8859-1',
       }
     end
+    private :reader_options
 
-    private def open
+    def open
       CSV.open(data_source, 'rb', reader_options) do |csv|
         csv.take(1)  # skip header manually to preserve tell()
         yield csv
       end
     end
+    private :open
 
-    private def reader
       Enumerator.new do |y|
         open do |io|
           pos = io.tell
           io.each { |row| y << [pos, clean(row)]; pos = io.tell }
         end
+    def reader
       end
     end
+    private :reader
 
-    private def clean(row)
+    def clean(row)
       row_to_h(row_clean(row))
     end
+    private :clean
 
-    private def row_clean(row)
+    def row_clean(row)
       row.map { |e| e.strip.encode('UTF-8') }
     end
+    private :row_clean
 
-    private def row_to_h(row)
+    def row_to_h(row)
       [:insee, :name, :zip, :alt_name].zip(row).to_h
     end
+    private :row_to_h
 
     def index!(name, data, modes = nil, key: nil)
       key ||= name
@@ -78,7 +85,7 @@ module ZipCode
     # TODO: create an appender registry
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/MethodLength
-    private def appender(idx, key, mode)
+    def appender(idx, key, mode)
       case mode
       when :prefix
         -> (pos, record) { append_prefixes(idx, pos, record[key]) }
@@ -92,52 +99,62 @@ module ZipCode
         -> (pos, record) { append_match(idx, pos, record[key]) }
       end
     end
+    private :appender
 
-    private def append_match(idx, pos, val)
+    def append_match(idx, pos, val)
       idx[val.hash] << pos
     end
+    private :append_match
 
-    private def append_words(idx, pos, val)
+    def append_words(idx, pos, val)
       each_word(val) { |w| idx[w.hash] << pos }
     end
+    private :append_words
 
-    private def append_word_prefixes(idx, pos, val)
+    def append_word_prefixes(idx, pos, val)
       each_word(val) do |word|
         each_prefix(word) { |prefix| idx[prefix.hash] << pos }
       end
     end
+    private :append_word_prefixes
 
-    private def append_prefixes(idx, pos, val, min_size: 1)
+    def append_prefixes(idx, pos, val, min_size: 1)
       each_prefix(val, min_size: min_size) { |prefix| idx[prefix.hash] << pos }
     end
+    private :append_prefixes
 
-    private def each_word(val, &block)
+    def each_word(val, &block)
       val.split.each(&block)
     end
+    private :each_word
 
-    private def each_prefix(val, min_size: 1)
+    def each_prefix(val, min_size: 1)
       min_size.upto(val.length) { |i| yield val[0...i] }
     end
+    private :each_prefix
 
-    private def each_suffix(val, min_size: 1)
+    def each_suffix(val, min_size: 1)
       min_size.upto(val.length) { |i| yield val[-i..-1] }
     end
+    private :each_suffix
 
-    private def append_infixes(idx, pos, val, min_size: 1)
+    def append_infixes(idx, pos, val, min_size: 1)
       each_prefix(val, min_size: min_size) do |prefix|
         each_suffix(prefix, min_size: min_size) do |infix|
           idx[infix.hash] << pos
         end
       end
     end
+    private :append_infixes
 
-    private def index(name)
+    def index(name)
       if @indexes.key?(name)
         @indexes[name]
       else
         fail "no index named #{name.inspect}"
       end
     end
+    private :index
 
     def memsize_of_index(name)
       require 'objspace'
@@ -145,7 +162,7 @@ module ZipCode
         @indexes[name].reduce(0) { |a, (_, v)| a + ObjectSpace.memsize_of(v) }
     end
 
-    private def read_at(*positions, count: 1)
+    def read_at(*positions, count: 1)
       Enumerator.new do |y|
         open do |io|
           positions.each do |pos|
@@ -155,6 +172,7 @@ module ZipCode
         end
       end
     end
+    private :read_at
 
     def search(name, str, case_insensitive: true)
       str = str.upcase if case_insensitive
