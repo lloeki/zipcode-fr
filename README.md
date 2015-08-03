@@ -2,6 +2,8 @@
 
 Find french city data by zip code and name.
 
+[![Build Status](https://travis-ci.org/lloeki/zipcode-fr.svg?branch=master)](https://travis-ci.org/lloeki/zipcode-fr)
+
 ## Usage
 
 ```ruby
