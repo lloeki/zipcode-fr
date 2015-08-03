@@ -1,4 +1,7 @@
 module ZipCode
+  # TODO: factor index system out
+  # TODO: factor country-independent code out
+  # rubocop:disable Metrics/ModuleLength
   module FR
     require 'csv'
 
@@ -8,8 +11,8 @@ module ZipCode
 
     def load
       # TODO: non-optimal, but not overly long either
-      index!(:name, reader, mode: :word_prefix)
-      index!(:zip, reader, mode: :prefix)
+      index!(:name, reader, [:word_prefix, :match])
+      index!(:zip, reader, :prefix)
       @loaded = true
     end
 
@@ -57,11 +60,14 @@ module ZipCode
       [:insee, :name, :zip, :alt_name].zip(row).to_h
     end
 
-    def index!(name, data, key = nil, mode: nil)
+    def index!(name, data, modes = nil, key: nil)
       key ||= name
       index = Hash.new { |h, k| h[k] = [] unless h.frozen? }
 
-      data.each(&appender(index, key, mode))
+      modes = [modes] unless modes.is_a?(Enumerable)
+      modes.each do |mode|
+        data.each(&appender(index, key, mode))
+      end
 
       index.each { |_, v| v.uniq! }
       index.freeze
@@ -69,6 +75,9 @@ module ZipCode
       @indexes[name] = index
     end
 
+    # TODO: create an appender registry
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
     private def appender(idx, key, mode)
       case mode
       when :prefix

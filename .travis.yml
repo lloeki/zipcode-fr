@@ -2,6 +2,6 @@ language: ruby
 rvm:
     - '2.1'
     - '2.2'
+    - 'rbx-2.5'
 script:
-  - bundle exec rubocop
-  - bundle exec ruby -e'load "lib/zipcode-fr.rb"; ZipCode::FR.load; ZipCode::FR.search(:name, "LA PER")'
+  - bundle exec rake ci
