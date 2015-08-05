@@ -1,13 +1,13 @@
+require 'zipcode-db'
+require 'csv'
+
 module ZipCode
   # TODO: factor index system out
-  # TODO: factor country-independent code out
-  # rubocop:disable Metrics/ModuleLength
-  module FR
-    require 'csv'
-
-    module_function
-
-    @indexes ||= {}
+  # rubocop:disable Metrics/ClassLength
+  class FR
+    def initialize
+      @indexes = {}
+    end
 
     def load
       # TODO: non-optimal, but not overly long either
@@ -185,3 +185,5 @@ module ZipCode
     end
   end
 end
+
+ZipCode::DB.register(:fr, ZipCode::FR.new)

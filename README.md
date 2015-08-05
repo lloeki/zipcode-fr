@@ -9,13 +9,19 @@ Find french city data by zip code and name.
 ```ruby
 require 'zipcode-fr'
 
-ZipCode::FR.load                     # builds memory-backed global index
+# use it directly
+z = ZipCode::FR.new
+z.load                         # builds memory-backed global index
 
-ZipCode.search(:zip, '50000')        # exact zip code search
-ZipCode.search(:zip, '50')           # prefixes work
-ZipCode.search(:name, 'VERSAILLES')  # search by name
-ZipCode.search(:name, 'BORD')        # prefixes work
-ZipCode.search(:name, 'MARIE')       # prefixes work on inner words
+z.search(:zip, '50000')        # exact zip code search
+z.search(:zip, '50')           # prefixes work
+z.search(:name, 'VERSAILLES')  # search by name
+z.search(:name, 'BORD')        # prefixes work
+z.search(:name, 'MARIE')       # prefixes work on inner words
+
+# use it through ZipCode::DB
+ZipCode::DB.for(:fr).load
+ZipCode::DB.for(:fr).search(:zip, '50000')
 ```
 
 Main fields are:

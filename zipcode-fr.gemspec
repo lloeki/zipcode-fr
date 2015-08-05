@@ -11,6 +11,8 @@ Gem::Specification.new do |s|
   s.files       = Dir['lib/**/*.rb'] + Dir['vendor/**/*']
   s.homepage    = 'https://github.com/lloeki/zipcode-fr'
 
+  s.add_dependency 'zipcode-db', '~> 1.0'
+
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rubocop'
   s.add_development_dependency 'rake'
