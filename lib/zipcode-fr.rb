@@ -7,10 +7,12 @@ module ZipCode
   class FR
     def initialize
       @indexes = {}
+      @loaded = false
     end
 
     def load
       # TODO: non-optimal, but not overly long either
+      return true if ready?
       index!(:name, reader, [:word_prefix, :match])
       index!(:zip, reader, :prefix)
       @loaded = true
