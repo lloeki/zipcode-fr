@@ -21,7 +21,7 @@ module ZipCode
     end
 
     def data_source
-      path = 'vendor/data/code_postaux_v201410.csv'
+      path = 'vendor/data/code_postaux_v201703.csv'
       File.expand_path(File.join(File.dirname(__FILE__), '..', path))
     end
     private :data_source
