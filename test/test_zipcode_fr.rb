@@ -21,7 +21,7 @@ class TestZipCodeFR < MiniTest::Test
   def test_search_by_first_word_prefix
     results = ZipCode::DB.for(:fr).search(:name, 'PERROS')
     assert_equal(4, results.count)
-    assert_equal(Set.new(%w(22168 22168 22324 22168)),
+    assert_equal(Set.new(%w[22168 22168 22324 22168]),
                  Set.new(results.map { |e| e[:insee] }))
   end
 

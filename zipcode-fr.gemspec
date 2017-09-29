@@ -3,9 +3,9 @@ Gem::Specification.new do |s|
   s.version     = '1.1.0'
   s.licenses    = ['MIT']
   s.summary     = 'French zip codes and cities'
-  s.description = <<-EOS
+  s.description = <<-DESC
    Query city information by zip code and city name, indexed by word prefixes.
-  EOS
+  DESC
   s.authors     = ['Loic Nageleisen']
   s.email       = 'loic.nageleisen@gmail.com'
   s.files       = Dir['lib/**/*.rb'] + Dir['vendor/**/*']
