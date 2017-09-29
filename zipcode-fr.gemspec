@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'zipcode-fr'
-  s.version     = '1.1.0'
+  s.version     = '1.2.0'
   s.licenses    = ['MIT']
   s.summary     = 'French zip codes and cities'
   s.description = <<-DESC
