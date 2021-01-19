@@ -13,7 +13,7 @@ module ZipCode
     def load
       # TODO: non-optimal, but not overly long either
       return true if ready?
-      index!(:name, reader, [:word_prefix, :match])
+      index!(:name, reader, %i[word_prefix match])
       index!(:zip, reader, :prefix)
       @loaded = true
     end
@@ -23,7 +23,7 @@ module ZipCode
     end
 
     def data_source
-      path = 'vendor/data/code_postaux_v201410.csv'
+      path = 'vendor/data/code_postaux_v201703.csv'
       File.expand_path(File.join(File.dirname(__FILE__), '..', path))
     end
     private :data_source
@@ -38,7 +38,7 @@ module ZipCode
 
     def open
       CSV.open(data_source, 'rb', reader_options) do |csv|
-        csv.take(1)  # skip header manually to preserve tell()
+        csv.take(1) # skip header manually to preserve tell()
         yield csv
       end
     end
@@ -65,7 +65,7 @@ module ZipCode
     private :row_clean
 
     def row_to_h(row)
-      [:insee, :name, :zip, :alt_name].zip(row).to_h
+      %i[insee name zip alt_name].zip(row).to_h
     end
     private :row_to_h
 
@@ -78,7 +78,7 @@ module ZipCode
         data.each(&appender(index, key, mode))
       end
 
-      index.each { |_, v| v.uniq! }
+      index.each_value(&:uniq!)
       index.freeze
 
       @indexes[name] = index
@@ -90,15 +90,15 @@ module ZipCode
     def appender(idx, key, mode)
       case mode
       when :prefix
-        -> (pos, record) { append_prefixes(idx, pos, record[key]) }
+        ->(pos, record) { append_prefixes(idx, pos, record[key]) }
       when :infix
-        -> (pos, record) { append_infixes(idx, pos, record[key]) }
+        ->(pos, record) { append_infixes(idx, pos, record[key]) }
       when :word
-        -> (pos, record) { append_words(idx, pos, record[key]) }
+        ->(pos, record) { append_words(idx, pos, record[key]) }
       when :word_prefix
-        -> (pos, record) { append_word_prefixes(idx, pos, record[key]) }
+        ->(pos, record) { append_word_prefixes(idx, pos, record[key]) }
       else
-        -> (pos, record) { append_match(idx, pos, record[key]) }
+        ->(pos, record) { append_match(idx, pos, record[key]) }
       end
     end
     private :appender
@@ -150,11 +150,9 @@ module ZipCode
     private :append_infixes
 
     def index(name)
-      if @indexes.key?(name)
-        @indexes[name]
-      else
-        fail "no index named #{name.inspect}"
-      end
+      raise "no index named #{name.inspect}" unless @indexes.key?(name)
+
+      @indexes[name]
     end
     private :index
 

@@ -12,4 +12,4 @@ Rake::TestTask.new do |t|
 end
 
 task default: :ci
-task ci: [:test, :rubocop]
+task ci: %i[test rubocop]
